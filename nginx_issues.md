@@ -79,42 +79,42 @@ worker_rlimit_nofile 65535;                 # 设置nginx worker进程最大打�
 
 # events块涉及的指令主要影响Nginx服务器与用户的网络连接
 events {
-        use epoll;                          # 选取哪种事件驱动模型处理连接请求
-        worker_connections 65535;           # 每个worker可以同时支持的最大连接数等
-	    # multi_accept on;                  # 是否允许同时接收多个网络连接
+    use epoll;                              # 选取哪种事件驱动模型处理连接请求
+    worker_connections 65535;               # 每个worker可以同时支持的最大连接数等
+    # multi_accept on;                      # 是否允许同时接收多个网络连接
 }
 
 # 代理、缓存和日志定义等绝大多数的功能和第三方模块的配置都可以放在http模块中
 http {
     #### http模块全局配置
-	sendfile on;                            # 启用高效传输文件功能
-	tcp_nopush on;                          # 用于防止网络拥塞，tcp_nopush当sendfile on时才能用
-	tcp_nodelay on;                         # 用于防止网络拥塞
-	
-	
-	#### 缓存设置
-	server_names_hash_bucket_size 64;       # 多个域名时设置存放域名的hash表大小为64kb
+    sendfile on;                            # 启用高效传输文件功能
+    tcp_nopush on;                          # 用于防止网络拥塞，tcp_nopush当sendfile on时才能用
+    tcp_nodelay on;                         # 用于防止网络拥塞
+    
+    
+    #### 缓存设置
+    server_names_hash_bucket_size 64;       # 多个域名时设置存放域名的hash表大小为64kb
     large_client_header_buffers 4 64k;      # 设定请求缓存大小
     client_header_buffer_size 32k;          # 为请求头分配一个缓冲区，如超过这个值就用large_client_header_buffers分配更大的缓冲区，如还超过large_client_header_buffers大小返回414
-	client_max_body_size 50m;               # 为请求体分配一个缓冲区
-	
-	open_file_cache max=204800 inactive=30s;  # 设置缓存数量，30s不访问则删除该缓存
+    client_max_body_size 50m;               # 为请求体分配一个缓冲区
+    
+    open_file_cache max=204800 inactive=30s;  # 设置缓存数量，30s不访问则删除该缓存
     open_file_cache_valid 30s;              # 30s检查一次缓存修改时间等元数据是否有更新，有则更新，无则继续使用缓存
     open_file_cache_min_uses 6;             # inactive时间内文件最少使用次数，超过则使用缓存，没有则从缓存删除
     open_file_cache_errors on;              # 缓存在文件访问期间发生的错误
-	
-	
-	#### 客户端连接设置，单位秒
-	keepalive_timeout 65;                   # 客户端连接超时时间
-	keepalive_requests 100000;              # 在tcp长连接上接收请求最大数为100000个，超过则关闭连接
-	client_header_timeout 10;               # 客户端请求头的超时时间
+    
+    
+    #### 客户端连接设置，单位秒
+    keepalive_timeout 65;                   # 客户端连接超时时间
+    keepalive_requests 100000;              # 在tcp长连接上接收请求最大数为100000个，超过则关闭连接
+    client_header_timeout 10;               # 客户端请求头的超时时间
     client_body_timeout 10;                 # 客户端请求主体超时时间
-	types_hash_max_size 2048;               # 默认为1024kb，值越大消耗内存越大，但检索速度更快
+    types_hash_max_size 2048;               # 默认为1024kb，值越大消耗内存越大，但检索速度更快
     reset_timedout_connection on;           # 关闭不响应的客户端连接，释放客户端所占有的内存空间
     send_timeout 10;                        # 客户端响应超时时间，在两次客户端读取操作之间。如果在这段时间内，客户端没有读取任何数据，nginx就会关闭连接
-	
-	
-	#### FastCGI配置，单位秒。可改善网站的性能，减少资源占用，提高访问速度。
+    
+    
+    #### FastCGI配置，单位秒。可改善网站的性能，减少资源占用，提高访问速度。
     fastcgi_connect_timeout 300;
     fastcgi_send_timeout 300;
     fastcgi_read_timeout 300;
@@ -124,50 +124,50 @@ http {
     fastcgi_temp_file_write_size 128k;
 
 
-	#### 日志文件格式配置
-	log_format access '$remote_addr - $remote_user [$time_local] "$request" '
-	    '$status $body_bytes_sent "$http_referer" '
-	    '"$http_user_agent" $http_x_forwarded_for '
-	    '"$request_time $upstream_response_time $pipe" '
-	    '"$gzip_ratio" "$http_cookie" "$http_accept" "$http_accept_encoding" "$http_platform"';
-	
-	# 以下为日志格式注释
-	# 访问日志格式：log_format 格式名access 客户端ip 基本身份验证提供的用户名 服务器本地时间 完整原始请求，包括请求类型GET及请求uri及http版本
-	# log_format access '$remote_addr - $remote_user [$time_local] "$request" '
-	# 响应状态200 发送到客户端的响应体字节数 http跳转来源 
-	# '$status $body_bytes_sent "$http_referer" '
-	# 访问者操作系统类型及浏览器版本 如果客户端没有通过代理访问则不显示 
-	# '"$http_user_agent" $http_x_forwarded_for '
-	# 处理请求花费的总时间 upstream返回响应时间 p或. 
-	# '"$request_time $upstream_response_time $pipe" '
-	# 压缩率 cookie内容 接收资源类型 
-	# '"$gzip_ratio" "$http_cookie" "$http_accept"
-	# 浏览器支持的压缩编码列表 平台来源，是移动端还是pc端
-	# "$http_accept_encoding" "$http_platform"';
+    #### 日志文件格式配置
+    log_format access '$remote_addr - $remote_user [$time_local] "$request" '
+        '$status $body_bytes_sent "$http_referer" '
+        '"$http_user_agent" $http_x_forwarded_for '
+        '"$request_time $upstream_response_time $pipe" '
+        '"$gzip_ratio" "$http_cookie" "$http_accept" "$http_accept_encoding" "$http_platform"';
+    
+    # 以下为日志格式注释
+    # 访问日志格式：log_format 格式名access 客户端ip 基本身份验证提供的用户名 服务器本地时间 完整原始请求，包括请求类型GET及请求uri及http版本
+    # log_format access '$remote_addr - $remote_user [$time_local] "$request" '
+    # 响应状态200 发送到客户端的响应体字节数 http跳转来源 
+    # '$status $body_bytes_sent "$http_referer" '
+    # 访问者操作系统类型及浏览器版本 如果客户端没有通过代理访问则不显示 
+    # '"$http_user_agent" $http_x_forwarded_for '
+    # 处理请求花费的总时间 upstream返回响应时间 p或. 
+    # '"$request_time $upstream_response_time $pipe" '
+    # 压缩率 cookie内容 接收资源类型 
+    # '"$gzip_ratio" "$http_cookie" "$http_accept"
+    # 浏览器支持的压缩编码列表 平台来源，是移动端还是pc端
+    # "$http_accept_encoding" "$http_platform"';
 
-	# access_log 路径/日志名 日志格式名 缓存大小；如没定义日志格式，则用默认的格式combined；
-	access_log /var/log/nginx/access.out access buffer=32k;
-	# 错误日志，默认作用于全局
-	error_log /var/log/nginx/error.log;
+    # access_log 路径/日志名 日志格式名 缓存大小；如没定义日志格式，则用默认的格式combined；
+    access_log /var/log/nginx/access.out access buffer=32k;
+    # 错误日志，默认作用于全局
+    error_log /var/log/nginx/error.log;
 
 
-	#### Gzip配置
-	gzip on;                                # Nginx默认只对text/html进行压缩,启用压缩对其他类型文件压缩 
-	# gzip_vary on;                         # 有的浏览器不支持压缩，在http头部加vary头决定是否需要压缩
-	# gzip_proxied any;                     # any任何资源都压缩
-	gzip_min_length 100;                    # 设置将被gzip压缩的的最小长度    
-	gzip_buffers 4 16k;                     # 压缩缓冲区个数和大小
-	gzip_comp_level 6;	                    # gzip压缩比，1为最小，处理最快；9为压缩比最大，处理最慢，传输速度最快，也最消耗 CPU；
-	gzip_http_version 1.1;                  # 压缩版本，默认1.1
+    #### Gzip配置
+    gzip on;                                # Nginx默认只对text/html进行压缩,启用压缩对其他类型文件压缩 
+    # gzip_vary on;                         # 有的浏览器不支持压缩，在http头部加vary头决定是否需要压缩
+    # gzip_proxied any;                     # any任何资源都压缩
+    gzip_min_length 100;                    # 设置将被gzip压缩的的最小长度    
+    gzip_buffers 4 16k;                     # 压缩缓冲区个数和大小
+    gzip_comp_level 6;                      # gzip压缩比，1为最小，处理最快；9为压缩比最大，处理最慢，传输速度最快，也最消耗 CPU；
+    gzip_http_version 1.1;                  # 压缩版本，默认1.1
     # 用正则表达式匹配命中的资源不进行压缩
     gzip_disable "xxx_Android\/\b([1-9]|9[0-9])\b";
-	# 需要压缩的资源类型
+    # 需要压缩的资源类型
     gzip_types text/plain application/x-javascript text/css text/htm application/xml application/json text/javascript text/xml;
 
 
     #### 代理设置，即nginx和后端服务器间的通讯设置
-	proxy_hide_header X-Application-Context;# 隐藏服务器响应的某些头部信息，这里隐藏X-Application-Context
-	proxy_connect_timeout 90;               # nginx跟后端服务器连接超时时间（代理连接超时）
+    proxy_hide_header X-Application-Context;# 隐藏服务器响应的某些头部信息，这里隐藏X-Application-Context
+    proxy_connect_timeout 90;               # nginx跟后端服务器连接超时时间（代理连接超时）
     proxy_send_timeout 90;                  # 后端服务器数据回传时间（代理发送超时）
     proxy_read_timeout 90;                  # 连接成功后，后端服务器响应时间（代理接收超时）
     proxy_buffering on;                     # 开启缓存，缓存被代理服务器的响应内容，此参数开启后proxy_buffers和proxy_busy_buffers_size参数才会起作用
@@ -200,11 +200,11 @@ http {
 
 
     #### 引入其他配置文件
-	include /usr/local/nginx-1.14/conf/mime.types;      # 引入所有元数据后缀名
-	default_type application/octet-stream;              # 默认类型为二进制
-	include /usr/local/nginx-1.14/conf/vhosts/*.conf;   # 引入vhosts目录下所有配置文件
+    include /usr/local/nginx-1.14/conf/mime.types;      # 引入所有元数据后缀名
+    default_type application/octet-stream;              # 默认类型为二进制
+    include /usr/local/nginx-1.14/conf/vhosts/*.conf;   # 引入vhosts目录下所有配置文件
     server_tokens off;
-	# include /etc/nginx/sites-enabled/default;
+    # include /etc/nginx/sites-enabled/default;
 }
 ```
 
