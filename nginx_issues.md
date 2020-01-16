@@ -200,9 +200,9 @@ http {
 
 
     #### 引入其他配置文件
-    include /usr/local/nginx-1.14/conf/mime.types;      # 引入所有元数据后缀名
+    include /usr/local/nginx/conf/mime.types;           # 引入所有元数据后缀名
     default_type application/octet-stream;              # 默认类型为二进制
-    include /usr/local/nginx-1.14/conf/vhosts/*.conf;   # 引入vhosts目录下所有配置文件
+    include /usr/local/nginx/conf/vhosts/*.conf;        # 引入自建vhosts目录下所有配置文件
     server_tokens off;
     # include /etc/nginx/sites-enabled/default;
 }
