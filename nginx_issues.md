@@ -7,6 +7,7 @@ sudo apt-get install -y libpcre3 libpcre3-dev build-essential libtool zlib1g-dev
 - centos update(alternative)
 
 ```
+sudo yum update
 sudo yum -y install gcc gcc-c++ automake pcre pcre-devel zlib zlib-devel openssl openssl-devel
 sudo yum update
 ```
