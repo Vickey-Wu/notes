@@ -70,7 +70,7 @@ sudo /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
 #### nignx.conf配置文件实例
 
 ```
-user www www;                               # 设置运行nginx的用户和用户组
+user nginx nginx;                               # 设置运行nginx的用户和用户组
 worker_processes 4;                         # 设置nginx的worker进程数，不包括缓存的worker进程，设置为cpu核数，设置超过8，性能没多大变化反而会引起性能不稳定
 
 # nginx默认没有开启利用多核CPU, 可以用worker_cpu_affinity 配置来充分利用多核CPU，以下是8核的配置例子。
